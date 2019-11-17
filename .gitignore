@@ -1,0 +1,14 @@
+**.iml
+.gradle/
+build/
+.idea/
+.DS_STORE
+local.properties
+
+**.xcodeproj
+
+.vs
+**.exe
+**.pdb
+**.ilk
+**.exp

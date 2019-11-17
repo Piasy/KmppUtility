@@ -1,0 +1,147 @@
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+}
+
+def hostOs = System.getProperty("os.name")
+def isMacOS = hostOs == "Mac OS X"
+def isLinux = hostOs == "Linux"
+def isWindows = hostOs.startsWith("Windows")
+
+if (isMacOS) {
+    // although apply is the old way, we can't use the new way inside if block :(
+    apply plugin: 'com.android.library'
+}
+
+if (isMacOS) {
+    android {
+        compileSdkVersion androidCompileSdkVersion
+        defaultConfig {
+            minSdkVersion androidMinSdkVersion
+
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+            testInstrumentationRunnerArguments clearPackageData: 'true'
+        }
+        sourceSets {
+            // with this assignment, test code under commonTest will be invoked,
+            // without it, test code even under androidTest won't be invoked.
+            androidTest {
+                java.srcDirs = ['src/androidTest/kotlin',]
+            }
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            }
+        }
+        testOptions {
+            execution 'ANDROIDX_TEST_ORCHESTRATOR'
+        }
+    }
+
+    // only used for Android Test dependencies
+    dependencies {
+        androidTestImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+        androidTestImplementation 'androidx.test:core:1.2.0'
+        androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+        androidTestImplementation 'androidx.test:runner:1.2.0'
+        androidTestUtil 'androidx.test:orchestrator:1.2.0'
+    }
+}
+
+kotlin {
+    if (isMacOS) {
+        android("android")
+        iosArm64("ios") {
+            binaries {
+                framework {
+                    baseName = "KmppBase64"
+                    embedBitcode("disable")
+                }
+            }
+        }
+//        macosX64("macos") {
+//            binaries {
+//                framework {
+//                    baseName = "KmppBase64"
+//                }
+//            }
+//        }
+    }
+
+//    if (isWindows || isMacOS) {
+//        mingwX64("mingw") {
+//            binaries {
+//                sharedLib {
+//                    baseName = "KmppBase64"
+//                }
+//            }
+//        }
+//    }
+//
+//    if (isLinux || isMacOS) {
+//        linuxX64("linux") {
+//            binaries {
+//                sharedLib {
+//                    baseName = "KmppBase64"
+//                }
+//            }
+//        }
+//    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test-common'
+                implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+            }
+        }
+        if (isMacOS) {
+            androidMain {
+                dependencies {
+                    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                }
+            }
+            iosMain {
+                dependencies {
+                }
+            }
+//            macosMain {
+//                dependencies {
+//                }
+//            }
+        }
+//        if (isWindows || isMacOS) {
+//            mingwMain {
+//                dependencies {
+//                }
+//            }
+//        }
+//        if (isLinux || isMacOS) {
+//            linuxMain {
+//                dependencies {
+//                }
+//            }
+//        }
+    }
+}
+
+//task iosTest {
+//    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+//    dependsOn 'linkDebugTestIos'
+//    group = JavaBasePlugin.VERIFICATION_GROUP
+//    description = "Runs tests for target 'ios' on an iOS simulator"
+//
+//    doLast {
+//        def binary = kotlin.targets.ios.binaries.getTest('DEBUG').outputFile
+//        exec {
+//            commandLine 'xcrun', 'simctl', 'spawn', '--standalone', device, binary.absolutePath
+//        }
+//    }
+//}
