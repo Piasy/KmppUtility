@@ -1,4 +1,4 @@
-import com.piasy.base64.Base64Factory
+package com.piasy.base64
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

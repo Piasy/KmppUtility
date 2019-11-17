@@ -18,16 +18,6 @@ if (isMacOS) {
         compileSdkVersion androidCompileSdkVersion
         defaultConfig {
             minSdkVersion androidMinSdkVersion
-
-            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-            testInstrumentationRunnerArguments clearPackageData: 'true'
-        }
-        sourceSets {
-            // with this assignment, test code under commonTest will be invoked,
-            // without it, test code even under androidTest won't be invoked.
-            androidTest {
-                java.srcDirs = ['src/androidTest/kotlin',]
-            }
         }
         buildTypes {
             release {
@@ -35,29 +25,45 @@ if (isMacOS) {
                 proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             }
         }
+
+        sourceSets.test.java.srcDirs = ['src/androidTest/kotlin',]
         testOptions {
-            execution 'ANDROIDX_TEST_ORCHESTRATOR'
+            unitTests.all {
+                testLogging {
+                    events 'started', 'passed', 'skipped', 'failed'
+                }
+                // only include RobolectricTest, tests under commonTest aren't annotated with
+                // `@RunWith(RobolectricTestRunner::class)`, so it will fail with XXX not mocked.
+                options {
+                    includeCategories 'com.piasy.test.RobolectricTest'
+                }
+            }
+            unitTests {
+                includeAndroidResources = true
+            }
         }
     }
 
     // only used for Android Test dependencies
     dependencies {
-        androidTestImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
-        androidTestImplementation 'androidx.test:core:1.2.0'
-        androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-        androidTestImplementation 'androidx.test:runner:1.2.0'
-        androidTestUtil 'androidx.test:orchestrator:1.2.0'
+        testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+        testImplementation 'org.robolectric:robolectric:4.3'
     }
 }
 
 kotlin {
     if (isMacOS) {
         android("android")
-        iosArm64("ios") {
-            binaries {
-                framework {
-                    baseName = "KmppBase64"
-                    embedBitcode("disable")
+
+        targets {
+            def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
+            def iosPreset = (buildForDevice) ? presets.iosArm64 : presets.iosX64
+            fromPreset(iosPreset, 'ios') {
+                binaries {
+                    framework {
+                        baseName = "KmppBase64"
+                        embedBitcode("disable")
+                    }
                 }
             }
         }
@@ -132,16 +138,16 @@ kotlin {
     }
 }
 
-//task iosTest {
-//    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
-//    dependsOn 'linkDebugTestIos'
-//    group = JavaBasePlugin.VERIFICATION_GROUP
-//    description = "Runs tests for target 'ios' on an iOS simulator"
-//
-//    doLast {
-//        def binary = kotlin.targets.ios.binaries.getTest('DEBUG').outputFile
-//        exec {
-//            commandLine 'xcrun', 'simctl', 'spawn', '--standalone', device, binary.absolutePath
-//        }
-//    }
-//}
+task iosTest {
+    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+    dependsOn 'linkDebugTestIos'
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Runs tests for target 'ios' on an iOS simulator"
+
+    doLast {
+        def binary = kotlin.targets.ios.binaries.getTest('DEBUG').outputFile
+        exec {
+            commandLine 'xcrun', 'simctl', 'spawn', '--standalone', device, binary.absolutePath
+        }
+    }
+}
