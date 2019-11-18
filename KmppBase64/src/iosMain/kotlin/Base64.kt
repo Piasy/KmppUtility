@@ -12,12 +12,12 @@ actual object Base64Factory {
 
 object NativeBase64Encoder : Base64Encoder {
     override fun encodeString(src: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return NativeBase64.PSYBase64.encodeString(src)
     }
 }
 
 object NativeBase64Decoder : Base64Decoder {
     override fun decodeString(src: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return NativeBase64.PSYBase64.decodeString(src)
     }
 }

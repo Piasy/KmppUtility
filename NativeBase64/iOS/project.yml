@@ -1,0 +1,17 @@
+name: NativeBase64
+targets:
+  NativeBase64:
+    type: library.static
+    platform: iOS
+    deploymentTarget: "10.0"
+    sources:
+      - path: wrapper
+    settings:
+      LIBRARY_SEARCH_PATHS: "$(inherited)"
+      OTHER_LDFLAGS: "$(inherited)"
+      CONFIGURATION_BUILD_DIR: "$(PROJECT_DIR)/../../libs/NativeBase64/iOS/"
+      CLANG_WARN_DOCUMENTATION_COMMENTS: "NO"
+      ENABLE_BITCODE: "NO"
+      ONLY_ACTIVE_ARCH: "NO"
+      VALID_ARCHS: "arm64 x86_64"
+      SKIP_INSTALL: "YES"
