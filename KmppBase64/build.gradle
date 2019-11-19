@@ -65,6 +65,10 @@ kotlin {
                         includeDirs {
                             allHeaders "${rootProject.projectDir}/NativeBase64/iOS/wrapper"
                         }
+                        // all of them will fail with "Undefined symbols" error
+                        //linkerOpts "-L/Users/piasy/src/Kotlin/KmppUtility/libs/NativeBase64/iOS/", "-lNativeBase64"
+                        //linkerOpts "-L${rootProject.projectDir}/libs/NativeBase64/iOS/ -lNativeBase64"
+                        linkerOpts "-L${rootProject.projectDir}/libs/NativeBase64/iOS/", "-lNativeBase64"
                     }
                 }
 

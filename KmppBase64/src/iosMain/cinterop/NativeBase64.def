@@ -1,5 +1,3 @@
 language = Objective-C
 headers = PSYBase64.h
 headerFilter = *
-
-linkerOpts.ios = -L/Users/piasy/src/Kotlin/KmppUtility/libs/NativeBase64/iOS/ -lNativeBase64
